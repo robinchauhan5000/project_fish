@@ -1,13 +1,12 @@
+import dontenv from "dotenv";
+import Bootstrap from '../src/infrastructure/server/bootstrapServer'
+import AppRoutes from "../src/application/routes/index";
 
-import express from 'express';
-import authRoutes from './presentation/routes/authRoutes';
+dontenv.config()
 
-const app = express();
 const port = process.env.PORT || 3000;
+const mongoURI = process.env.MONGO__URI || '';
 
-app.use(express.json());
-app.use('/api/auth', authRoutes);
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+(() => {
+    new Bootstrap({ port, router: AppRoutes,mongoURI:mongoURI});
+})();

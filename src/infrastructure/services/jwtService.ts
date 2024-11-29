@@ -1,16 +1,21 @@
+import jwt from "jsonwebtoken"
 
-import jwt from 'jsonwebtoken';
-
-const secret = 'your_jwt_secret';
+const secret = process.env.JWT_SECRET ?? ""
 
 export const generateToken = (id: string) => {
-  return jwt.sign({ id }, secret, { expiresIn: '1h' });
-};
+  if (secret === "") {
+    throw new Error("Please add jwt secret")
+  }
+  return jwt.sign({ id }, secret, { expiresIn: "1h" })
+}
 
 export const verifyToken = (token: string) => {
-  try {
-    return jwt.verify(token, secret);
-  } catch (err) {
-    return null;
+  if (secret === "") {
+    throw new Error("Please add jwt secret")
   }
-};
+  try {
+    return jwt.verify(token, secret)
+  } catch (err: any) {
+    return err.message
+  }
+}
