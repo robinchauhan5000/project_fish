@@ -1,20 +1,39 @@
 import { Request, Response } from "express"
-import { UserModelScheme } from "../../data/models/userModel"
+import GetAllUserUseCase from "../../domain/use_cases/getAllUsers"
+import UserRepository from "../../domain/repositories/UserRepository"
 
 class UserController {
-  async getListOfUsers(req: Request, res: Response) {
+  userResposotry: UserRepository
+
+  constructor(userResposotry: UserRepository) {
+    this.userResposotry = userResposotry
+  }
+
+  register = async (req: Request, res: Response) => {
+    const registerUser = new GetAllUserUseCase(this.userResposotry)
     try {
-      const pageNumber = req.body.pageNumber
-
-      const skip = (pageNumber - 1) * 10
-
-      const allUsers = UserModelScheme.find().skip(skip).limit(10).exec()
-      res.status(201).send({})
+      await registerUser.execute(req.body)
+      res.status(201).send("User registered successfully")
     } catch (err: any) {
       res.status(400).send(err.message)
     }
   }
-  async getUserById(req: Request, res: Response) {
+
+  getListOfUsers = async (req: Request, res: Response) => {
+    try {
+      const getAllUser = new GetAllUserUseCase(this.userResposotry)
+
+      const pageNumber = req.query.pageNumber ? parseInt(req.query.pageNumber as string) : 1
+
+      const response = await getAllUser.execute({ limit: 10, pageNumber: pageNumber })
+
+      res.status(200).send(response)
+    } catch (err: any) {
+      res.status(400).send(err.message)
+    }
+  }
+
+  getUserById = async (req: Request, res: Response) => {
     const token = req.headers.authorization
 
     try {
@@ -24,7 +43,7 @@ class UserController {
     }
   }
 
-  async updateUserById(req: Request, res: Response) {
+  updateUserById = async (req: Request, res: Response) => {
     const token = req.headers.authorization
 
     try {
@@ -34,7 +53,7 @@ class UserController {
     }
   }
 
-  async deleteUserById(req: Request, res: Response) {
+  deleteUserById = async (req: Request, res: Response) => {
     const token = req.headers.authorization
 
     try {

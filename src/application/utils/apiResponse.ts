@@ -29,3 +29,5 @@ class ApiResponse<T> {
     return new ApiResponse<T>(false, message, undefined, statusCode) // No data provided
   }
 }
+
+export default ApiResponse

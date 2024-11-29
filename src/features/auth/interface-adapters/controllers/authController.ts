@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { AuthRepositoryImpl } from "../../data/repositories/authRepositoryImpl"
-import RegisterUser from "../../domain/use_cases/registerUser"
+import RegisterUserUseCase from "../../domain/use_cases/registerUser"
 import LoginUser from "../../domain/use_cases/loginUser"
 
 class AuthController {
@@ -11,10 +11,10 @@ class AuthController {
   }
 
   register = async (req: Request, res: Response) => {
-    const registerUser = new RegisterUser(this.authRepository)
+    const registerUserUseCase = new RegisterUserUseCase(this.authRepository)
     try {
-      await registerUser.execute(req.body)
-      res.status(201).send("User registered successfully")
+     const response = await registerUserUseCase.execute(req.body)
+      res.status(201).send(response)
     } catch (err: any) {
       res.status(400).send(err.message)
     }

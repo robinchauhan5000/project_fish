@@ -1,35 +1,78 @@
 import UserRepository from "../../domain/repositories/UserRepository"
 import { UserModelScheme, UserModel } from "../../../users/data/models/userModel"
+import ApiResponse from "../../../../application/utils/apiResponse"
+import ResponseMessages from "../../../../application/utils/customErrors"
 
-export class UserRepositoryImpl<T> extends UserRepository<T> {
-  async getAllUser<T>({ pageNumber, limit = 10 }: { pageNumber: number; limit: number }): Promise<ApiResponse<T>> {
+class UserRepositoryImpl extends UserRepository {
+  constructor() {
+    super()
+    this.getAllUser = this.getAllUser.bind(this)
+    this.findByUsername = this.findByUsername.bind(this)
+    this.save = this.save.bind(this)
+  }
+
+  async getAllUser({
+    pageNumber,
+    limit = 10,
+  }: {
+    pageNumber: number
+    limit: number
+  }): Promise<ApiResponse<{
+    users:UserModel[],
+    totalCount:number
+  }>> {
     const skip = (pageNumber - 1) * limit
+    const result = await UserModelScheme.aggregate([
+      {
+        $facet: {
+          data: [{ $skip: skip }, { $limit: limit }, { $project: { __v: 0 } }],
+          count: [{ $count: "totalCount" }],
+        },
+      },
+    ])
 
-    const allUsers = UserModelScheme.find().skip(skip).limit(10).exec()
+    const users = result[0].data
+    const totalCount = result[0].count.length > 0 ? result[0].count[0].totalCount : 0
+
     const response = ApiResponse.successResponse({
-      data: allUsers as T, // Typecast the result if necessary
-      message: ResponseMessages.General.SUCCESS,
-      statusCode: 200,
+      data: {
+        users,
+        totalCount,
+      },
+      message: ResponseMessages.General.SUCCESS.message,
+      statusCode: ResponseMessages.General.SUCCESS.code,
     })
     return response
   }
 
-  async findByUsername(phoneNumber: string): Promise<ApiResponse<T>> {
-    const user = await UserModelScheme.findOne({ phoneNumber: phoneNumber })
+  async findByUsername(phoneNumber: string): Promise<ApiResponse<UserModel>> {
+    const user: UserModel | null = await UserModelScheme.findOne({ phoneNumber: phoneNumber })
 
     if (!user) {
-      throw ApiResponse.errorResponse({ message: ResponseMessages.User.USER_NOT_FOUND, statusCode: 401 })
-      // new Error("There is no user account associated with this phone number")
+      throw ApiResponse.errorResponse({
+        message: ResponseMessages.User.USER_NOT_FOUND.message,
+        statusCode: ResponseMessages.User.USER_NOT_FOUND.code,
+      })
     }
+
     return ApiResponse.successResponse({ message: "", data: user, statusCode: 200 })
   }
 
-  async save(user: UserModel): Promise<ApiResponse<T>> {
+  async save(user: UserModel): Promise<ApiResponse<UserModel>> {
     const checkExistUser = await this.findByUsername(user.phoneNumber)
-    if (checkExistUser) {
-      throw new Error("User already exist with this number")
+    if (checkExistUser.data?.phoneNumber) {
+      throw ApiResponse.errorResponse({
+        message: ResponseMessages.User.USER_ALREADY_EXIST.message,
+        statusCode: ResponseMessages.User.USER_ALREADY_EXIST.code,
+      })
     }
-    UserModelScheme.create(user)
-    return ApiResponse.successResponse({ message: "", data: user, statusCode: 200 })
+    await UserModelScheme.create(user)
+    return ApiResponse.successResponse({
+      message: ResponseMessages.User.USER_CREATED.message,
+      data: user,
+      statusCode: ResponseMessages.User.USER_CREATED.code,
+    })
   }
 }
+
+export default UserRepositoryImpl

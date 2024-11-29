@@ -1,12 +1,12 @@
 import { UserEntity } from "../../../users/domain/entities/user"
-import { UserModel } from "../../../users/data/models/userModel"
+import {UserModel} from "../../../users/data/models/userModel"
 import { AuthRepository } from "../repositories/authRepository"
 
 interface RegisterUserRequest {
   phoneNumber: string
 }
 
-class RegisterUser {
+class RegisterUserUseCase {
   constructor(private userRepository: AuthRepository) {}
 
   async execute(request: RegisterUserRequest): Promise<UserModel> {
@@ -16,4 +16,4 @@ class RegisterUser {
   }
 }
 
-export default RegisterUser
+export default RegisterUserUseCase
