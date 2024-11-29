@@ -1,18 +1,15 @@
-import { UserEntity } from "../entities/user"
-import { UserModel } from "../../../users/data/models/userModel"
-import { UserRepository } from "../repositories/UserRepository"
+import UserRepository from "../repositories/UserRepository"
 
-interface RegisterUserRequest {
-  phoneNumber: string
+interface GetAllUserRequest {
+  pageNumber: number
+  limit: number
 }
 
-class GetAllUser {
-  constructor(private userRepository: UserRepository) {}
+class GetAllUser<T> {
+  constructor(private userRepository: UserRepository<T>) {}
 
-  async execute(request: RegisterUserRequest): Promise<UserModel> {
-    const { phoneNumber } = request
-    const user = UserEntity.create({ phoneNumber: phoneNumber })
-    return await this.userRepository.save(user)
+  async execute(request: GetAllUserRequest): Promise<ApiResponse<T>> {
+    return await this.userRepository.getAllUser({ limit: request.limit, pageNumber: request.pageNumber })
   }
 }
 

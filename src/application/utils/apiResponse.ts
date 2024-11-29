@@ -1,21 +1,31 @@
 class ApiResponse<T> {
   success: boolean
   message: string
-  data: T | null
-  error: string | null
+  data?: T // Optional, not defaulting to null
+  statusCode?: number
 
-  constructor(success: boolean, message: string, data: T | null = null, error: string | null = null) {
+  constructor(success: boolean, message: string, data?: T, statusCode?: number) {
     this.success = success
     this.message = message
-    this.data = data
-    this.error = error
+    if (data !== undefined) {
+      this.data = data // Only assign if data is provided
+    }
+    this.statusCode = statusCode
   }
 
-  static successResponse<T>(data: T, message = "Success"): ApiResponse<T> {
-    return new ApiResponse<T>(true, message, data, null)
+  static successResponse<T>({
+    data,
+    message,
+    statusCode,
+  }: {
+    data?: T
+    message: string
+    statusCode: number
+  }): ApiResponse<T> {
+    return new ApiResponse<T>(true, message, data, statusCode)
   }
 
-  static errorResponse<T>(error: string, message = "Error", data: T | null = null): ApiResponse<T> {
-    return new ApiResponse<T>(false, message, data, error)
+  static errorResponse<T>({ statusCode, message }: { statusCode: number; message: string }): ApiResponse<T> {
+    return new ApiResponse<T>(false, message, undefined, statusCode) // No data provided
   }
 }

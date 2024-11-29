@@ -2,3 +2,4 @@
 /node_modules
 /dist
 /src/infrastructure/service/firebase/*
+/src/infrastructure/service/firebase/serviceAccountKey.json.json

@@ -21,6 +21,19 @@ class ResponseMessages {
       ACCOUNT_SUSPENDED: 'Your account has been suspended. Contact support.',
     };
   
+    // User Account Actions
+    static User = {
+      USER_CREATED: 'User account created successfully.',
+      USER_UPDATED: 'User details updated successfully.',
+      USER_DELETED: 'User account deleted successfully.',
+      USER_NOT_FOUND: 'User not found.',
+      USERNAME_TAKEN: 'Username is already taken.',
+      EMAIL_TAKEN: 'Email address is already in use.',
+      PASSWORD_CHANGED: 'Password changed successfully.',
+      PASSWORD_MISMATCH: 'The new password does not match the confirmation.',
+      INVALID_CREDENTIALS: 'Invalid credentials. Please check your username or password.',
+    };
+  
     // Product & Catalog
     static Product = {
       PRODUCT_FOUND: 'Product retrieved successfully.',
