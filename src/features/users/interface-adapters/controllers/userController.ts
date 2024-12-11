@@ -1,6 +1,7 @@
 import { Request, Response } from "express"
 import GetAllUserUseCase from "../../domain/use_cases/getAllUsers"
 import UserRepository from "../../domain/repositories/UserRepository"
+import UpdateUserUseCase from "../../domain/use_cases/updateUserById"
 
 class UserController {
   userResposotry: UserRepository
@@ -44,10 +45,11 @@ class UserController {
   }
 
   updateUserById = async (req: Request, res: Response) => {
-    const token = req.headers.authorization
-
     try {
-      res.status(200).json()
+      const updateUserUseCase = new UpdateUserUseCase(this.userResposotry)
+      const response = await updateUserUseCase.execute(req.body)
+      console.log("🚀 ~ file: userController.ts:52 ~ UserController ~ updateUserById= ~ response:", response)
+      res.status(200).json(response)
     } catch (err: any) {
       res.status(400).json({ error: err.message })
     }

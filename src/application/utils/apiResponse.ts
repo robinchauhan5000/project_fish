@@ -22,7 +22,7 @@ class ApiResponse<T> {
     message: string
     statusCode: number
   }): ApiResponse<T> {
-    return new ApiResponse<T>(true, message, data, statusCode)
+    return new ApiResponse<T>(true, message, data?? undefined, statusCode)
   }
 
   static errorResponse<T>({ statusCode, message }: { statusCode: number; message: string }): ApiResponse<T> {

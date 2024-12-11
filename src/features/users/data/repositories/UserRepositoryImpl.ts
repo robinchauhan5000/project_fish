@@ -11,16 +11,12 @@ class UserRepositoryImpl extends UserRepository {
     this.save = this.save.bind(this)
   }
 
-  async getAllUser({
-    pageNumber,
-    limit = 10,
-  }: {
-    pageNumber: number
-    limit: number
-  }): Promise<ApiResponse<{
-    users:UserModel[],
-    totalCount:number
-  }>> {
+  async getAllUser({ pageNumber, limit = 10 }: { pageNumber: number; limit: number }): Promise<
+    ApiResponse<{
+      users: UserModel[]
+      totalCount: number
+    }>
+  > {
     const skip = (pageNumber - 1) * limit
     const result = await UserModelScheme.aggregate([
       {
@@ -71,6 +67,31 @@ class UserRepositoryImpl extends UserRepository {
       message: ResponseMessages.User.USER_CREATED.message,
       data: user,
       statusCode: ResponseMessages.User.USER_CREATED.code,
+    })
+  }
+  async updateUser(req: UserModel & { id: string }): Promise<ApiResponse<UserModel>> {
+    if (!req.id) {
+      throw ApiResponse.errorResponse({
+        message: ResponseMessages.User.INVALID_CREDENTIALS.message,
+        statusCode: ResponseMessages.User.INVALID_CREDENTIALS.code,
+      })
+    }
+    const user: UserModel | null = await UserModelScheme.findByIdAndUpdate(
+      { _id: req.id },
+      { ...req },
+      { new: true, runValidators: true },
+    )
+    if (!user) {
+      throw ApiResponse.errorResponse({
+        message: ResponseMessages.User.INVALID_CREDENTIALS.message,
+        statusCode: ResponseMessages.User.INVALID_CREDENTIALS.code,
+      })
+    }
+
+    return ApiResponse.successResponse({
+      message: ResponseMessages.General.SUCCESS.message,
+      data: user,
+      statusCode: ResponseMessages.General.SUCCESS.code,
     })
   }
 }

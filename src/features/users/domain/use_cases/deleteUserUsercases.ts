@@ -9,9 +9,10 @@ interface RegisterUserRequest {
 class DeleteUser {
   constructor(private userRepository: UserRepository) {}
 
-  async execute(request: RegisterUserRequest): Promise<ApiResponse<UserModel[]>> {
+  async execute(request: RegisterUserRequest): Promise<ApiResponse<UserModel> | null> {
     const { pageNumber } = request
-    return await this.userRepository.getAllUser({ pageNumber, limit: 10 })
+    // return await this.userRepository.getAllUser({ pageNumber, limit: 10 })
+    return null
   }
 }
 

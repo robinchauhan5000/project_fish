@@ -1,25 +1,20 @@
-import { prop, getModelForClass, index } from "@typegoose/typegoose"
-class Address {
-  @prop()
-  street: string
-  @prop()
-  city: string
-  @prop()
-  state: string
-  @prop()
-  postalCode: string
-
-  constructor(street: string, city: string, state: string, postalCode: string) {
-    this.street = street
-    this.city = city
-    this.state = state
-    this.postalCode = postalCode
-  }
-
-  static create({ street, city, state, postalCode }: Partial<Address> = {}): Address {
-    return new Address(street ?? "", city ?? "", state ?? "", postalCode ?? "")
-  }
-}
+import { prop, getModelForClass, index, modelOptions } from "@typegoose/typegoose"
+@modelOptions({
+  schemaOptions: {
+    toJSON: {
+      transform: (_doc, ret) => {
+        delete ret.__v
+        return ret
+      },
+    },
+    toObject: {
+      transform: (_doc, ret) => {
+        delete ret.__v
+        return ret
+      },
+    },
+  },
+})
 @index({ phoneNumber: "asc" })
 class UserModel {
   @prop()
@@ -28,18 +23,15 @@ class UserModel {
   lastName: string
   @prop({ required: true, unique: true, index: true })
   phoneNumber: string
-  @prop({ type: () => [Address] })
-  address: Address[]
 
-  constructor(firstName: string, lastName: string, phoneNumber: string, address?: Address[]) {
+  constructor(firstName: string, lastName: string, phoneNumber: string) {
     this.firstName = firstName
     this.lastName = lastName
     this.phoneNumber = phoneNumber
-    this.address = address || []
   }
 
-  static createEntity({ firstName, lastName, phoneNumber, address }: Partial<UserModel> = {}): UserModel {
-    return new UserModel(firstName ?? "", lastName ?? "", phoneNumber ?? "", address ?? [])
+  static createEntity({ firstName, lastName, phoneNumber }: Partial<UserModel> = {}): UserModel {
+    return new UserModel(firstName ?? "", lastName ?? "", phoneNumber ?? "")
   }
 }
 

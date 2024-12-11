@@ -10,6 +10,7 @@ abstract class UserRepository {
       totalCount: number
     }>
   >
+  abstract updateUser({ lastName, firstName, phoneNumber }: UserModel): Promise<ApiResponse<UserModel>>
 }
 
 export default UserRepository
