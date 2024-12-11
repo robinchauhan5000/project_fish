@@ -1,14 +1,13 @@
 import { Router } from "express"
 import AddressController from "../controllers/addressController"
-import UserRepositoryImpl from "../../data/repositories/UserRepositoryImpl"
+import AddressRepositoryImpl from "../../data/repositories/AddressRepositoryImpl"
 
 const router = Router()
-const userResposotry = new UserRepositoryImpl()
-const userController = new AddressController(userResposotry)
+const addressResposotry = new AddressRepositoryImpl()
+const addressController = new AddressController(addressResposotry)
 
-router.get("/all", userController.getListOfUsers)
-router.get("/:id", userController.getUserById)
-router.patch("/update:id", userController.updateUserById)
-router.post("/delete:id", userController.deleteUserById)
+router.get("/all", addressController.getListOfAddress)
+router.patch("/update:id", addressController.updateAddressById)
+router.post("/delete:id", addressController.deleteAddressById)
 
 export default router
