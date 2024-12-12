@@ -7,7 +7,8 @@ const addressResposotry = new AddressRepositoryImpl()
 const addressController = new AddressController(addressResposotry)
 
 router.get("/all", addressController.getListOfAddress)
-router.patch("/update:id", addressController.updateAddressById)
-router.post("/delete:id", addressController.deleteAddressById)
+router.post("/save", addressController.saveAddress)
+router.patch("/update", addressController.updateAddressById)
+router.post("/delete", addressController.deleteAddressById)
 
 export default router

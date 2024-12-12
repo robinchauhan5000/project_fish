@@ -3,6 +3,7 @@ import AddressRepository from "../../domain/repositories/AddressRepository"
 import UpdateAddressUseCase from "../../domain/use_cases/updateAddressById"
 import GetAllAddressUseCase from "../../domain/use_cases/getAllAddress"
 import SaveAddressUseCase from "../../domain/use_cases/saveAddressUseCase"
+import DeleteAddressUseCase from "../../domain/use_cases/deleteAddressUsecase"
 
 class AddressController {
   addressResposotry: AddressRepository
@@ -14,8 +15,8 @@ class AddressController {
   saveAddress = async (req: Request, res: Response) => {
     const saveAddress = new SaveAddressUseCase(this.addressResposotry)
     try {
-      await saveAddress.execute(req.body)
-      res.status(201).send("User registered successfully")
+      const response = await saveAddress.execute(req.body)
+      res.status(201).send(response)
     } catch (err: any) {
       res.status(400).send(err.message)
     }
@@ -45,7 +46,9 @@ class AddressController {
 
   deleteAddressById = async (req: Request, res: Response) => {
     try {
-      res.status(200).json()
+      const deleteAddressUseCase = new DeleteAddressUseCase(this.addressResposotry)
+      const response = await deleteAddressUseCase.execute(req.body)
+      res.status(200).json(response)
     } catch (err: any) {
       res.status(400).json({ error: err.message })
     }

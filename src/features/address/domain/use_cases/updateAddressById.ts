@@ -5,7 +5,7 @@ import AddressRepository from "../repositories/AddressRepository"
 class UpdateAddressUseCase {
   constructor(private addressRepository: AddressRepository) {}
 
-  async execute(request: AddressModel): Promise<ApiResponse<AddressModel>> {
+  async execute(request: { addressId: string; address: AddressModel }): Promise<ApiResponse<AddressModel>> {
     return await this.addressRepository.updateAddress(request)
   }
 }

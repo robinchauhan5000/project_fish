@@ -1,27 +1,44 @@
 import { prop, getModelForClass } from "@typegoose/typegoose"
+import { Types } from "mongoose"
+
 class AddressModel {
-  @prop()
+  @prop({ required: true })
   street: string
-  @prop()
+
+  @prop({ required: true })
   city: string
-  @prop()
+
+  @prop({ required: true })
   state: string
-  @prop()
+
+  @prop({ required: true })
   postalCode: string
-  @prop()
+
+  @prop({ default: false })
   isDefault: boolean
 
-  constructor(street: string, city: string, state: string, postalCode: string, isDefault: boolean) {
+  @prop({ required: true, ref: "user" }) // Reference to the User model
+  userId: Types.ObjectId
+
+  constructor(street: string, city: string, state: string, postalCode: string, isDefault: boolean, userId: string) {
     this.street = street
     this.city = city
     this.state = state
     this.postalCode = postalCode
     this.isDefault = isDefault
+    this.userId = new Types.ObjectId(userId)
   }
 
-  static create({ street, city, state, postalCode, isDefault }: Partial<AddressModel> = {}): AddressModel {
-    return new AddressModel(street ?? "", city ?? "", state ?? "", postalCode ?? "", isDefault ?? false)
-  }
+  // static create({
+  //   street,
+  //   city,
+  //   state,
+  //   postalCode,
+  //   isDefault,
+  //   userId,
+  // }: Partial<AddressModel> & { userId: Types.ObjectId }): AddressModel {
+  //   return new AddressModel(street ?? "", city ?? "", state ?? "", postalCode ?? "", isDefault ?? false, userId)
+  // }
 }
 
 const AddressModelScheme = getModelForClass(AddressModel, {

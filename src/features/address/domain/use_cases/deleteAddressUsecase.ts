@@ -5,7 +5,7 @@ interface DeleteAddressRequest {
   id: string
 }
 
-class DeleteAddress {
+class DeleteAddressUseCase {
   constructor(private addressRepository: AddressRepository) {}
 
   async execute(request: DeleteAddressRequest): Promise<ApiResponse<{}> | null> {
@@ -15,4 +15,4 @@ class DeleteAddress {
   }
 }
 
-export default DeleteAddress
+export default DeleteAddressUseCase

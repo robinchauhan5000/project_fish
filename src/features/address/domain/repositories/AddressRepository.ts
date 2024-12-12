@@ -9,12 +9,12 @@ abstract class AddressRepository {
   abstract deleteAddress(id: string): Promise<VoidApiResponse>
   abstract getAllAddress({ userId }: { userId: string }): Promise<ApiResponse<AddressModel[]>>
   abstract updateAddress({
-    city,
-    isDefault,
-    postalCode,
-    state,
-    street,
-  }: AddressModel): Promise<ApiResponse<AddressModel>>
+    address,
+    addressId,
+  }: {
+    addressId: string
+    address: AddressModel
+  }): Promise<ApiResponse<AddressModel>>
 }
 
 export default AddressRepository
