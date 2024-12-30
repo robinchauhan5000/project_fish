@@ -17,6 +17,9 @@ class SaveAddressUseCase {
 
   async execute(request: SaveAddressRequest): Promise<ApiResponse<AddressModel>> {
     const { state, city, isDefault, postalCode, street, userId } = request
+
+
+    ///TODO need to get this userId from the token not from the request
     const address = AddressEntity.create({
       state,
       city,

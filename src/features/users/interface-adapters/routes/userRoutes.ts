@@ -11,4 +11,7 @@ router.get("/user:id", userController.getUserById)
 router.patch("/update", userController.updateUserById)
 router.post("/user/delete:id", userController.deleteUserById)
 
+
+
+
 export default router
