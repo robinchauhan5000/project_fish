@@ -52,6 +52,7 @@ class ResponseMessages {
     CART_UPDATED: { message: "Cart updated successfully.", code: 200 },
     CHECKOUT_SUCCESS: { message: "Checkout completed successfully.", code: 200 },
     INSUFFICIENT_STOCK: { message: "Some items in your cart are out of stock.", code: 400 },
+    CART_NOT_FOUND: { message: "Cart not found", code: 404 },
   }
 
   // Orders

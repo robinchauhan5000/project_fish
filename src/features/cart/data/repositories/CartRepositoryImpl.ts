@@ -8,6 +8,75 @@ import { Types } from "mongoose"
 import { ProductModel, ProductModelScheme } from "../../../products/data/models/productModel"
 
 class CartRepositoryImpl extends CartRepository {
+  removeItemFromCart = async ({
+    userId,
+    productId,
+    quantity,
+  }: {
+    userId: string
+    productId: string
+    quantity: number
+  }): Promise<ApiResponse<CartModel>> => {
+    try {
+      const userObjectId = new Types.ObjectId(userId);
+      const itemObjectId = new Types.ObjectId(productId);
+
+      const product = await ProductModelScheme.findOne({ productId: itemObjectId });
+      if (!product) {
+        return ApiResponse.errorResponse({
+          message: ResponseMessages.Product.PRODUCT_NOT_FOUND.message,
+          statusCode: ResponseMessages.Product.PRODUCT_NOT_FOUND.code,
+        });
+      }
+ 
+      const updatedCart = await CartModelScheme.findOneAndUpdate(
+        { userId: userObjectId },
+        {
+          // Decrease the quantity or remove the product
+          $pull: {
+            product: {
+              $and: [
+                { productId: itemObjectId },
+                { quantity: { $lte: quantity } }, // Remove if quantity is less than or equal to `quantity`
+              ],
+            },
+          },
+          $inc: {
+            "product.$[item].quantity": -quantity,
+          },
+        },
+        {
+          arrayFilters: [
+            { "item.productId": itemObjectId }, // Match the specific product
+            { "item.quantity": { $gt: quantity } }, // Only apply decrement if quantity is greater than `quantity`
+          ],
+          new: true, // Return the updated document
+        }
+      ).exec();
+  
+      if (!updatedCart) {
+        return ApiResponse.errorResponse({
+          message: ResponseMessages.Cart.CART_NOT_FOUND.message,
+          statusCode: ResponseMessages.Cart.CART_NOT_FOUND.code,
+        });
+      }
+  
+      // Return the updated cart
+      return ApiResponse.successResponse({
+        message: ResponseMessages.General.SUCCESS.message,
+        data: updatedCart,
+        statusCode: ResponseMessages.General.SUCCESS.code,
+      });
+    } catch (error) {
+      console.error(error);
+      return ApiResponse.errorResponse({
+        message: ResponseMessages.General.ERROR.message,
+        statusCode: ResponseMessages.General.ERROR.code,
+      });
+    }
+  
+  }
+
   addItemToCart = async ({
     userId,
     productId,
@@ -18,54 +87,67 @@ class CartRepositoryImpl extends CartRepository {
     quantity: number
   }): Promise<ApiResponse<CartModel>> => {
     try {
-      const userObjectId = new userObjectId()
-      const itemObjectId = new Types.ObjectId(productId)
-
-      const product: ProductModel | null = await ProductModelScheme.findOne({ productId: itemObjectId })
-
+      const userObjectId = new Types.ObjectId(userId);
+      const itemObjectId = new Types.ObjectId(productId);
+  
+      const product: ProductModel | null = await ProductModelScheme.findOne({ productId: itemObjectId });
+  
       if (!product) {
         return ApiResponse.errorResponse({
           message: ResponseMessages.Product.PRODUCT_NOT_FOUND.message,
           statusCode: ResponseMessages.Product.PRODUCT_NOT_FOUND.code,
-        })
+        });
       }
-
+  
       const updatedCart = await CartModelScheme.findOneAndUpdate(
-        { userId: userObjectId }, // Filter by user ID
+        { userId: userObjectId },
         {
-          // Check if product exists and update quantity or add a new product
-          $setOnInsert: { userId: userObjectId }, // Ensure a cart is created if none exists
+          // Add the product to the cart if it doesn't exist
+          $setOnInsert: { userId: userObjectId },
+          $inc: { "products.$[product].quantity": 1 },
           $addToSet: {
-            product: {
-              $cond: {
-                if: { $eq: ["$product.productId", new Types.ObjectId(productId)] },
-                then: { $inc: { "product.$.quantity": quantity } },
-                else: {
-                  $each: [
-                    {
-                      productId: new Types.ObjectId(productId),
-                      quantity,
-                      productThumbnail: product.productThumbnail,
-                      productPrice: product.productPrice,
-                    },
-                  ],
-                },
-              },
+            items: {
+              itemId: itemObjectId,
+              quantity: 1,
+              productPrice: product.productPrice,
+              productThumbnail: product.productThumbnail, 
             },
           },
         },
-        { new: true, upsert: true }, // Options: return updated document, create if not found
-      )
-
+        {
+          arrayFilters: [
+            {
+              "product.productId": itemObjectId, 
+            },
+          ],
+          upsert: true,
+          new: true, 
+        }
+      ).exec();
+  
+      // If the cart was not found or the update failed, return an error
       if (!updatedCart) {
-        throw new Error("Failed to update the cart.")
+        return ApiResponse.errorResponse({
+          message: ResponseMessages.Cart.CART_NOT_FOUND.message,
+          statusCode: ResponseMessages.Cart.CART_NOT_FOUND.code,
+        });
       }
-
+  
+      // Check if the quantity in the cart exceeds available stock
+      const cartItem = updatedCart.product.find((item) => new Types.ObjectId(item.productId).equals(itemObjectId));
+      if (cartItem && cartItem.quantity > product.quantity) {
+        return ApiResponse.errorResponse({
+          message: ResponseMessages.Cart.INSUFFICIENT_STOCK.message,
+          statusCode: ResponseMessages.Cart.INSUFFICIENT_STOCK.code,
+        });
+      }
+  
+      // Return the updated cart
       return ApiResponse.successResponse({
         message: ResponseMessages.General.SUCCESS.message,
-        data: updatedCart ?? [],
+        data: updatedCart,
         statusCode: ResponseMessages.General.SUCCESS.code,
-      })
+      });
     } catch (error) {
       throw ApiResponse.errorResponse({
         message: ResponseMessages.General.ERROR.message,
@@ -89,33 +171,33 @@ class CartRepositoryImpl extends CartRepository {
     }
   }
 
-  removeItemFromCart = async ({
-    userId,
-    productId,
-    quantity,
-  }: {
-    userId: string
-    productId: string
-    quantity: number
-  }) => {
-    try {
-      const cart = await CartModelScheme.findOne({ userId: new Types.ObjectId(userId) })
+  // removeItemFromCart = async ({
+  //   userId,
+  //   productId,
+  //   quantity,
+  // }: {
+  //   userId: string
+  //   productId: string
+  //   quantity: number
+  // }) => {
+  //   try {
+  //     const cart = await CartModelScheme.findOne({ userId: new Types.ObjectId(userId) })
 
-      if (cart) {
-      }
-    } catch (error) {
-      return new VoidApiResponse({
-        message: ResponseMessages.General.ERROR.message,
-        statusCode: ResponseMessages.General.ERROR.code,
-        success: false,
-      })
-    }
-    return new VoidApiResponse({
-      message: "Operation failed",
-      statusCode: 400,
-      success: false,
-    })
-  }
+  //     if (cart) {
+  //     }
+  //   } catch (error) {
+  //     return new VoidApiResponse({
+  //       message: ResponseMessages.General.ERROR.message,
+  //       statusCode: ResponseMessages.General.ERROR.code,
+  //       success: false,
+  //     })
+  //   }
+  //   return new VoidApiResponse({
+  //     message: "Operation failed",
+  //     statusCode: 400,
+  //     success: false,
+  //   })
+  // }
 }
 
 export default CartRepositoryImpl

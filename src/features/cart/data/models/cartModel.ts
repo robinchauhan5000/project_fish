@@ -6,18 +6,14 @@ class CartProduct {
   productId!: string
 
   @prop({ required: true })
-  productThubnail!: string
-
-  @prop({ required: true })
   quantity!: number
 
   @prop({ required: true })
   productPrice!: number
 
-  constructor(productId: string, quantity: number, productPrice: number, productThubnail: string) {
+  constructor(productId: string, quantity: number, productPrice: number) {
     this.productId = productId
     this.quantity = quantity
-    this.productThubnail = productThubnail
     this.productPrice = productPrice
   }
 }
@@ -39,7 +35,7 @@ class CartModel {
   constructor({ userId, product }: { userId: string; product: CartProduct[] }) {
     this.userId = userId
     this.product = product.map(
-      (product) => new CartProduct(product.productId, product.quantity, product.productPrice, product.productThubnail),
+      (product) => new CartProduct(product.productId, product.quantity, product.productPrice),
     )
   }
 

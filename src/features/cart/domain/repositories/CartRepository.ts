@@ -12,13 +12,13 @@ abstract class CartRepository {
   }): Promise<ApiResponse<CartModel>>
   abstract removeItemFromCart({
     userId,
-    itemId,
+    productId,
     quantity,
   }: {
     userId: string
-    itemId: string
+    productId: string
     quantity: number
-  }): Promise<VoidApiResponse>
+  }): Promise<ApiResponse<CartModel>>
   abstract getAllItemsFromCart({ userId }: { userId: string }): Promise<ApiResponse<CartModel[]>>
 }
 
