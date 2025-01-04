@@ -8,30 +8,20 @@ import { Types } from "mongoose"
 import { ProductModel, ProductModelScheme } from "../../../products/data/models/productModel"
 
 class CartRepositoryImpl extends CartRepository {
-  removeItemFromCart({
-    userId,
-    itemId,
-    quantity,
-  }: {
-    userId: string
-    itemId: string
-    quantity: number
-  }): Promise<VoidApiResponse> {
-    throw new Error("Method not implemented.")
-  }
-
   addItemToCart = async ({
     userId,
     productId,
+    quantity,
   }: {
     userId: string
     productId: string
+    quantity: number
   }): Promise<ApiResponse<CartModel>> => {
     try {
-      const userObjectId = new Types.ObjectId(userId)
+      const userObjectId = new userObjectId()
       const itemObjectId = new Types.ObjectId(productId)
 
-      const product: ProductModel | null = await ProductModelScheme.findOne({ productId: productId })
+      const product: ProductModel | null = await ProductModelScheme.findOne({ productId: itemObjectId })
 
       if (!product) {
         return ApiResponse.errorResponse({
@@ -40,25 +30,40 @@ class CartRepositoryImpl extends CartRepository {
         })
       }
 
-      const cartResponse = await CartModelScheme.findOneAndUpdate(
-        { userId: userObjectId },
+      const updatedCart = await CartModelScheme.findOneAndUpdate(
+        { userId: userObjectId }, // Filter by user ID
         {
-          $setOnInsert: { userId: userObjectId },
-          $inc: { "products.$[product].quantity": 1 },
+          // Check if product exists and update quantity or add a new product
+          $setOnInsert: { userId: userObjectId }, // Ensure a cart is created if none exists
           $addToSet: {
-            items: { itemId: itemObjectId, quantity: 1, productPrice: product.productPrice },
+            product: {
+              $cond: {
+                if: { $eq: ["$product.productId", new Types.ObjectId(productId)] },
+                then: { $inc: { "product.$.quantity": quantity } },
+                else: {
+                  $each: [
+                    {
+                      productId: new Types.ObjectId(productId),
+                      quantity,
+                      productThumbnail: product.productThumbnail,
+                      productPrice: product.productPrice,
+                    },
+                  ],
+                },
+              },
+            },
           },
         },
-        {
-          arrayFilters: [{ "product.productId": itemObjectId }],
-          upsert: true,
-          new: true,
-        },
-      ).exec()
+        { new: true, upsert: true }, // Options: return updated document, create if not found
+      )
+
+      if (!updatedCart) {
+        throw new Error("Failed to update the cart.")
+      }
 
       return ApiResponse.successResponse({
         message: ResponseMessages.General.SUCCESS.message,
-        data: cartResponse ?? [],
+        data: updatedCart ?? [],
         statusCode: ResponseMessages.General.SUCCESS.code,
       })
     } catch (error) {
@@ -84,46 +89,33 @@ class CartRepositoryImpl extends CartRepository {
     }
   }
 
-  // removeItemFromCart = async ({ userId, itemId, quantity }: { userId: string; itemId: string; quantity: number }) => {
-  //   try {
-  //     const cart = await CartModelScheme.findOne({ userId: new Types.ObjectId(userId) })
+  removeItemFromCart = async ({
+    userId,
+    productId,
+    quantity,
+  }: {
+    userId: string
+    productId: string
+    quantity: number
+  }) => {
+    try {
+      const cart = await CartModelScheme.findOne({ userId: new Types.ObjectId(userId) })
 
-  //     if (cart) {
-  //       const itemIndex = cart.product.findIndex((product) => product.productId.equals(itemId))
-
-  //       if (itemIndex > -1) {
-  //         cart.items[itemIndex].quantity -= quantity
-
-  //         if (cart.items[itemIndex].quantity <= 0) {
-  //           cart.items.splice(itemIndex, 1)
-  //         }
-
-  //         cart.totalItemCount = cart.items.reduce((sum, item) => sum + item.quantity, 0)
-  //         cart.grandTotalPrice = cart.items.reduce((sum, item) => sum + item.itemPrice * item.quantity, 0)
-
-  //         await cart.save()
-
-  //         // return cart
-  //         return new VoidApiResponse({
-  //           message: ResponseMessages.General.SUCCESS.message,
-  //           statusCode: ResponseMessages.General.SUCCESS.code,
-  //           success: true,
-  //         })
-  //       }
-  //     }
-  //   } catch (error) {
-  //     return new VoidApiResponse({
-  //       message: ResponseMessages.General.ERROR.message,
-  //       statusCode: ResponseMessages.General.ERROR.code,
-  //       success: false,
-  //     })
-  //   }
-  //   return new VoidApiResponse({
-  //     message: "Operation failed",
-  //     statusCode: 400,
-  //     success: false,
-  //   })
-  // }
+      if (cart) {
+      }
+    } catch (error) {
+      return new VoidApiResponse({
+        message: ResponseMessages.General.ERROR.message,
+        statusCode: ResponseMessages.General.ERROR.code,
+        success: false,
+      })
+    }
+    return new VoidApiResponse({
+      message: "Operation failed",
+      statusCode: 400,
+      success: false,
+    })
+  }
 }
 
 export default CartRepositoryImpl

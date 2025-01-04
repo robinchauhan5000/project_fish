@@ -12,6 +12,7 @@ abstract class ProductRepository {
     quantity: number
   }): Promise<VoidApiResponse>
   abstract getAllProducts(): Promise<ApiResponse<ProductModel[]>>
+  abstract updateProduct(product: ProductModel): Promise<ApiResponse<ProductModel>>
 }
 
 export default ProductRepository

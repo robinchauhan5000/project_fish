@@ -3,3 +3,4 @@
 /dist
 /src/infrastructure/service/firebase/*
 /src/infrastructure/service/firebase/serviceAccountKey.json.json
+src/infrastructure/service/firebase/serviceAccountKey.json.json
