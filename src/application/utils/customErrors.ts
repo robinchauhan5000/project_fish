@@ -26,7 +26,7 @@ class ResponseMessages {
     USER_CREATED: { message: "User account created successfully.", code: 201 },
     USER_UPDATED: { message: "User details updated successfully.", code: 200 },
     USER_DELETED: { message: "User account deleted successfully.", code: 200 },
-    USER_NOT_FOUND: { message: "User not found.", code: 404 },
+    USER_NOT_FOUND: { message: "User not found. Please register", code: 404 },
     USERNAME_TAKEN: { message: "Username is already taken.", code: 409 },
     EMAIL_TAKEN: { message: "Email address is already in use.", code: 409 },
     PASSWORD_CHANGED: { message: "Password changed successfully.", code: 200 },

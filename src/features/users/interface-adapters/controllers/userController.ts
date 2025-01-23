@@ -48,8 +48,7 @@ class UserController {
     try {
       const updateUserUseCase = new UpdateUserUseCase(this.userResposotry)
       const response = await updateUserUseCase.execute(req.body)
-      console.log("🚀 ~ file: userController.ts:52 ~ UserController ~ updateUserById= ~ response:", response)
-      res.status(200).json(response)
+       res.status(200).json(response)
     } catch (err: any) {
       res.status(400).json({ error: err.message })
     }

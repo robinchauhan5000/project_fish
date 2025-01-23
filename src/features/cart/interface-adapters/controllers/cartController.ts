@@ -33,9 +33,10 @@ class CartController {
 
   removeItemInCart = async (req: Request, res: Response) => {
     try {
+      const { productId, quantity, userId } = req.body
       const getCart = new RemoveItemInCart(this.cartResposotry)
 
-      const response = await getCart.execute({ id: req.body.id })
+      const response = await getCart.execute({ productId, quantity, userId })
       res.status(200).send(response)
     } catch (err: any) {
       res.status(400).send(err.message)

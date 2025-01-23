@@ -1,4 +1,5 @@
 import { prop, getModelForClass, index, modelOptions } from "@typegoose/typegoose"
+import { Types } from "mongoose"
 @modelOptions({
   schemaOptions: {
     toJSON: {
@@ -17,6 +18,8 @@ import { prop, getModelForClass, index, modelOptions } from "@typegoose/typegoos
 })
 @index({ phoneNumber: "asc" })
 class UserModel {
+  @prop({ type: () => Types.ObjectId, auto: true })
+  _id?: Types.ObjectId
   @prop()
   firstName: string
   @prop()

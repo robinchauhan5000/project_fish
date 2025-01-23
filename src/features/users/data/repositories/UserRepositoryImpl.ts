@@ -4,6 +4,7 @@ import ApiResponse from "../../../../application/utils/apiResponse"
 import ResponseMessages from "../../../../application/utils/customErrors"
 
 class UserRepositoryImpl extends UserRepository {
+  
   constructor() {
     super()
     this.getAllUser = this.getAllUser.bind(this)

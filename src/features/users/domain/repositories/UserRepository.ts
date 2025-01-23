@@ -11,6 +11,7 @@ abstract class UserRepository {
     }>
   >
   abstract updateUser({ lastName, firstName, phoneNumber }: UserModel): Promise<ApiResponse<UserModel>>
-}
+
+ }
 
 export default UserRepository

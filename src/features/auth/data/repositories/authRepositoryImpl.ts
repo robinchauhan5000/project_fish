@@ -1,10 +1,17 @@
 import { AuthRepository } from "../../domain/repositories/authRepository"
 import { UserModel } from "../../../../features/users/data/models/userModel"
 import { AuthDataSource } from "../data_sources/authData"
+import ApiResponse from "../../../../application/utils/apiResponse"
 
 export class AuthRepositoryImpl extends AuthRepository {
-  async loginUser(token: string): Promise<UserModel | null> {
-    return AuthDataSource.loginUser(token)
+  async loginUser({
+    phoneNumber,
+    accessToken,
+  }: {
+    accessToken?: string
+    phoneNumber: string
+  }): Promise<ApiResponse<{ user: UserModel; accessToken: string }>> {
+    return AuthDataSource.loginUser({ phoneNumber, accessToken })
   }
 
   async save(user: UserModel): Promise<UserModel> {
