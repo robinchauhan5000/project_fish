@@ -1,5 +1,5 @@
 import ApiResponse from "../../../../application/utils/apiResponse"
-import { UserModel } from "../../../users/data/models/userModel"
+import { UserModel } from "../../../web/users/data/models/userModel"
 
 export abstract class AuthRepository {
   abstract loginUser({

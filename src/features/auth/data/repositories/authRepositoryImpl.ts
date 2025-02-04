@@ -1,5 +1,5 @@
 import { AuthRepository } from "../../domain/repositories/authRepository"
-import { UserModel } from "../../../../features/users/data/models/userModel"
+import { UserModel } from "../../../../features/web/users/data/models/userModel"
 import { AuthDataSource } from "../data_sources/authData"
 import ApiResponse from "../../../../application/utils/apiResponse"
 

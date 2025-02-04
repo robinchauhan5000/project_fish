@@ -1,9 +1,9 @@
-import { UserModel, UserModelScheme } from "../../../users/data/models/userModel"
+import { UserModel, UserModelScheme } from "../../../web/users/data/models/userModel"
 import ApiResponse from "../../../../application/utils/apiResponse"
 import ResponseMessages from "../../../../application/utils/customErrors"
 import JwtGenerator from "../../../../application/utils/jwtGenerator"
 import admin from "firebase-admin"
-import { UserEntity } from "../../../users/domain/entities/user"
+import { UserEntity } from "../../../web/users/domain/entities/user"
 
 export class AuthDataSource {
   static async loginUser({
@@ -15,22 +15,24 @@ export class AuthDataSource {
   }): Promise<ApiResponse<{ user: UserModel; accessToken: string }>> {
     try {
       let user: UserModel | null = await UserModelScheme.findOne({ phoneNumber: phoneNumber })
+      console.log("🚀 ~ file: authData.ts:18 ~ AuthDataSource ~ user:", user)
 
       const response = await admin.auth().verifyIdToken(accessToken!)
+      console.log("🚀 ~ file: authData.ts:21 ~ AuthDataSource ~ response:", response)
 
-      if(!user) {
+      if (!user) {
         user = UserEntity.create({ phoneNumber })
-          UserModelScheme.create(user).then((res) => {
-            console.log("🚀 ~ file: authData.ts:35 ~ AuthDataSource ~ UserModelScheme.create ~ res:", res)
-            return ApiResponse.successResponse({
-              message: ResponseMessages.User.USER_CREATED.message,
-              statusCode: ResponseMessages.User.USER_CREATED.code,
-              data: res,
-            })
+        UserModelScheme.create(user).then((res:any) => {
+          console.log("🚀 ~ file: authData.ts:24 ~ AuthDataSource ~ UserModelScheme.create ~ res:", res)
+          return ApiResponse.successResponse({
+            message: ResponseMessages.User.USER_CREATED.message,
+            statusCode: ResponseMessages.User.USER_CREATED.code,
+            data: res,
           })
+        })
       }
 
-      if(response.phone_number === `+91${user!.phoneNumber}`) {
+      if (response.phone_number === user!.phoneNumber) {
         const token = await JwtGenerator.generateToken(user?._id?.toString()!)
         if (token) {
           return ApiResponse.successResponse({
@@ -41,35 +43,8 @@ export class AuthDataSource {
               user: user!,
             },
           })
+        }
       }
-    }
-      // if (!!user && response.phone_number === `+91${user!.phoneNumber}`) {
-      //   const token = await JwtGenerator.generateToken(user?._id?.toString()!)
-      //   if (token) {
-      //     return ApiResponse.successResponse({
-      //       message: ResponseMessages.General.SUCCESS.message,
-      //       statusCode: ResponseMessages.General.SUCCESS.code,
-      //       data: {
-      //         accessToken: token,
-      //         user: user!,
-      //       },
-      //     })
-      //   } else {
-      //     const newUser: UserModel = UserEntity.create({ phoneNumber })
-      //     UserModelScheme.create(newUser).then((res) => {
-      //       console.log("🚀 ~ file: authData.ts:35 ~ AuthDataSource ~ UserModelScheme.create ~ res:", res)
-      //       return ApiResponse.successResponse({
-      //         message: ResponseMessages.User.USER_CREATED.message,
-      //         statusCode: ResponseMessages.User.USER_CREATED.code,
-      //         data: res,
-      //       })
-      //     })
-      //   }
-      //   return ApiResponse.errorResponse({
-      //     message: ResponseMessages.User.INVALID_CREDENTIALS.message,
-      //     statusCode: ResponseMessages.User.INVALID_CREDENTIALS.code,
-      //   })
-      // }
 
       return ApiResponse.errorResponse({
         message: ResponseMessages.User.INVALID_CREDENTIALS.message,
@@ -78,8 +53,8 @@ export class AuthDataSource {
     } catch (err: any) {
       console.log("🚀 ~ file: authData.ts:59 ~ AuthDataSource ~ err:", err)
       return ApiResponse.errorResponse({
-        message: ResponseMessages.General.ERROR.message,
-        statusCode: ResponseMessages.General.ERROR.code,
+        message: ResponseMessages.Auth.AUTH_TOKEN_EXPIRED.message,
+        statusCode: ResponseMessages.Auth.AUTH_TOKEN_EXPIRED.code,
         error: err.message,
       })
     }

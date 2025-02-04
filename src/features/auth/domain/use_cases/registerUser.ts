@@ -1,5 +1,5 @@
-import { UserEntity } from "../../../users/domain/entities/user"
-import {UserModel} from "../../../users/data/models/userModel"
+import { UserEntity } from "../../../web/users/domain/entities/user"
+import {UserModel} from "../../../web/users/data/models/userModel"
 import { AuthRepository } from "../repositories/authRepository"
 
 interface RegisterUserRequest {

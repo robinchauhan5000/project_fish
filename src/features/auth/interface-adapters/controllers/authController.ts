@@ -2,9 +2,11 @@ import { Request, Response } from "express"
 import { AuthRepositoryImpl } from "../../data/repositories/authRepositoryImpl"
 import RegisterUserUseCase from "../../domain/use_cases/registerUser"
 import LoginUser from "../../domain/use_cases/loginUser"
+import ApiResponse from "../../../../application/utils/apiResponse"
+import ResponseMessages from "../../../../application/utils/customErrors"
 
 class AuthController {
-  authRepository: AuthRepositoryImpl
+  private authRepository: AuthRepositoryImpl
 
   constructor() {
     this.authRepository = new AuthRepositoryImpl()
@@ -26,13 +28,19 @@ class AuthController {
     console.log("🚀 ~ file: authController.ts:26 ~ AuthController ~ login= ~ phoneNumber:", phoneNumber)
 
     if (!req.headers.authorization) {
-      return res.status(401).json({ error: "Authorization Token cannot be empty" });
+      return res.status(401).json(
+        ApiResponse.errorResponse({
+          message: ResponseMessages.General.UNAUTHORIZED.message,
+          statusCode: ResponseMessages.General.UNAUTHORIZED.code,
+          error: "Authorization Token cannot be empty",
+        }),
+      )
     }
 
     const accessToken = req.headers.authorization!.replace("Bearer", "").trim()
 
     try {
-      const result = loginUser.execute({ accessToken, phoneNumber })
+      const result = await loginUser.execute({ accessToken, phoneNumber })
 
       console.log("🚀 ~ file: authController.ts:44 ~ AuthController ~ login= ~ result:", result)
 

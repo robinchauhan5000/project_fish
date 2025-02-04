@@ -19,6 +19,7 @@ class ResponseMessages {
     PASSWORD_RESET_SUCCESS: { message: "Password reset successfully.", code: 200 },
     ACCOUNT_VERIFIED: { message: "Account verified successfully.", code: 200 },
     ACCOUNT_SUSPENDED: { message: "Your account has been suspended. Contact support.", code: 403 },
+    AUTH_TOKEN_EXPIRED: { message: "Auth token is expired", code: 401 },
   }
 
   // User Account Actions
@@ -69,6 +70,17 @@ class ResponseMessages {
     PAYMENT_FAILED: { message: "Payment failed. Please try again.", code: 400 },
     REFUND_INITIATED: { message: "Refund initiated successfully.", code: 200 },
     REFUND_COMPLETED: { message: "Refund processed successfully.", code: 200 },
+  }
+
+  // Address Management
+  static Address = {
+    ADDRESS_ADDED: { message: "Address added successfully.", code: 201 },
+    ADDRESS_UPDATED: { message: "Address updated successfully.", code: 200 },
+    ADDRESS_DELETED: { message: "Address deleted successfully.", code: 200 },
+    ADDRESS_NOT_FOUND: { message: "Address not found.", code: 404 },
+    INVALID_ADDRESS: { message: "Invalid address provided.", code: 400 },
+    DEFAULT_ADDRESS_SET: { message: "Default address set successfully.", code: 200 },
+    ADDRESS_ALREADY_EXISTS: { message: "This address already exists.", code: 409 },
   }
 }
 
